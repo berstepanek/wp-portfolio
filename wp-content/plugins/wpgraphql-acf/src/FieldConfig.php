@@ -1,0 +1,919 @@
+<?php
+
+namespace WPGraphQL\Acf;
+
+use GraphQL\Type\Definition\ResolveInfo;
+use WPGraphQL\Acf\FieldType\Wysiwyg;
+use WPGraphQL\AppContext;
+
+class FieldConfig {
+
+	/**
+	 * The key a row's stored (unformatted) values are passed down under, alongside its formatted values.
+	 *
+	 * @var string
+	 */
+	protected static $raw_row_key = '__wpgraphql_acf_raw_row';
+
+	/**
+	 * @var array<mixed>
+	 */
+	protected $acf_field;
+
+	/**
+	 * @var array<mixed>
+	 */
+	protected $raw_field;
+
+	/**
+	 * @var array<mixed>
+	 */
+	protected $acf_field_group;
+
+	/**
+	 * @var string|null
+	 */
+	protected $graphql_field_group_type_name;
+
+	/**
+	 * @var string
+	 */
+	protected $graphql_field_name;
+
+	/**
+	 * @var \WPGraphQL\Acf\AcfGraphQLFieldType|null
+	 */
+	protected $graphql_field_type;
+
+	/**
+	 * @var \WPGraphQL\Acf\Registry
+	 */
+	protected $registry;
+
+	/**
+	 * @var string
+	 */
+	protected $graphql_parent_type_name;
+
+	/**
+	 * @param array<mixed>            $acf_field The ACF Field being mapped to the GraphQL Schema
+	 * @param array<mixed>            $acf_field_group The ACF Field Group the field belongs to
+	 * @param \WPGraphQL\Acf\Registry $registry The WPGraphQL for ACF Type Registry
+	 *
+	 * @throws \GraphQL\Error\Error
+	 */
+	public function __construct( array $acf_field, array $acf_field_group, Registry $registry ) {
+		$this->raw_field                     = $acf_field;
+		$this->acf_field                     = ! empty( $acf_field['key'] ) && acf_get_field( $acf_field['key'] ) ? acf_get_field( $acf_field['key'] ) : $acf_field;
+		$this->acf_field_group               = $acf_field_group;
+		$this->registry                      = $registry;
+		$this->graphql_field_group_type_name = $this->registry->get_field_group_graphql_type_name( $this->acf_field_group );
+		$this->graphql_field_name            = $this->registry->get_graphql_field_name( $this->acf_field );
+		$this->graphql_field_type            = Utils::get_graphql_field_type( $this->raw_field['type'] );
+	}
+
+	/**
+	 * Get the WPGraphQL for ACF TypeRegistry instance
+	 */
+	public function get_registry(): Registry {
+		return $this->registry;
+	}
+
+	/**
+	 * Get the GraphQL Type Name for the current ACF Field Group
+	 */
+	public function get_graphql_field_group_type_name(): ?string {
+		return $this->graphql_field_group_type_name;
+	}
+
+	/**
+	 * Get the AcfGraphQLFieldType definition for an ACF Field
+	 */
+	public function get_graphql_field_type(): ?AcfGraphQLFieldType {
+		return $this->graphql_field_type;
+	}
+
+	/**
+	 * @param array<mixed> $acf_field
+	 * @param string|null  $prepend
+	 *
+	 * @throws \GraphQL\Error\Error
+	 */
+	public function get_parent_graphql_type_name( array $acf_field, ?string $prepend = '' ): string {
+		$type_name = '';
+
+		if ( ! empty( $acf_field['parent_layout_group'] ) ) {
+			$type_name = $this->registry->get_field_group_graphql_type_name( $acf_field['parent_layout_group'] );
+		} elseif ( ! empty( $acf_field['parent'] ) ) {
+			$parent_field = acf_get_field( $acf_field['parent'] );
+			$parent_group = acf_get_field_group( $acf_field['parent'] );
+			if ( ! empty( $parent_field ) ) {
+				$type_name = $this->registry->get_field_group_graphql_type_name( $parent_field );
+				$type_name = $this->get_parent_graphql_type_name( $parent_field, $type_name );
+			} elseif ( ! empty( $parent_group ) ) {
+				$type_name = $this->registry->get_field_group_graphql_type_name( $parent_group );
+				$type_name = $this->get_parent_graphql_type_name( $parent_group, $type_name );
+			}
+		}
+
+		return $type_name . $prepend;
+	}
+
+	/**
+	 * Get the GraphQL field name of the ACF Field
+	 */
+	public function get_graphql_field_name(): string {
+		return $this->graphql_field_name;
+	}
+
+	/**
+	 * Determine whether an ACF Field is supported by GraphQL
+	 */
+	protected function is_supported_field_type(): bool {
+		$supported_types = Utils::get_supported_acf_fields_types();
+		return ! empty( $this->acf_field['type'] ) && in_array( $this->acf_field['type'], $supported_types, true );
+	}
+
+	/**
+	 * Get the description of the field for the GraphQL Schema
+	 *
+	 * @throws \GraphQL\Error\Error
+	 */
+	public function get_field_description(): string {
+
+		$graphql_field_type = $this->get_graphql_field_type();
+		$field_type_config  = ( $graphql_field_type instanceof AcfGraphQLFieldType ) ? $graphql_field_type->get_config() : [];
+
+		// Use the explicit graphql_description, if set
+		if ( ! empty( $this->acf_field['graphql_description'] ) ) {
+			$description = $this->acf_field['graphql_description'];
+
+			// else use the instructions, if set
+		} elseif ( ! empty( $this->acf_field['instructions'] ) ) {
+			$description = $this->acf_field['instructions'];
+		} else {
+			// Fallback description
+			// translators: %s is the name of the ACF Field Group
+			$description = sprintf(
+				// translators: %1$s is the ACF Field Type and %2$s is the name of the ACF Field Group
+				__( 'Field of the "%1$s" Field Type added to the schema as part of the "%2$s" Field Group', 'wpgraphql-acf' ),
+				$this->acf_field['type'] ?? '',
+				$this->registry->get_field_group_graphql_type_name( $this->acf_field_group )
+			);
+		}
+
+		if ( isset( $field_type_config['graphql_description_after'] ) ) {
+			if ( is_callable( $field_type_config['graphql_description_after'] ) ) {
+				$description .= ' ' . call_user_func( $field_type_config['graphql_description_after'], $this );
+			} else {
+				$description .= ' ' . $field_type_config['graphql_description_after'];
+			}
+		}
+
+		return $description;
+	}
+
+	/**
+	 * @return array<mixed>
+	 */
+	public function get_acf_field(): array {
+		return $this->acf_field;
+	}
+
+	/**
+	 * @return array<mixed>
+	 */
+	public function get_raw_acf_field(): array {
+		return $this->raw_field;
+	}
+
+	/**
+	 * @return array<mixed>
+	 */
+	public function get_acf_field_group(): array {
+		return $this->acf_field_group;
+	}
+
+	/**
+	 * @return array<mixed>|null
+	 * @throws \GraphQL\Error\Error
+	 * @throws \Exception
+	 */
+	public function get_graphql_field_config(): ?array {
+
+		// if the field is explicitly set to not show in graphql, leave it out of the schema
+		// if the field is explicitly set to not show in graphql, leave it out of the schema
+		if ( isset( $this->acf_field['show_in_graphql'] ) && false === (bool) $this->acf_field['show_in_graphql'] ) {
+			return null;
+		}
+
+		// if the field is not a supported type, don't add it to the schema
+		if ( ! $this->is_supported_field_type() ) {
+			return null;
+		}
+
+		if ( empty( $this->graphql_field_group_type_name ) || empty( $this->graphql_field_name ) ) {
+			return null;
+		}
+
+		$field_config = [
+			'type'            => 'String',
+			'name'            => $this->graphql_field_name,
+			'description'     => $this->get_field_description(),
+			'acf_field'       => $this->get_acf_field(),
+			'acf_field_group' => $this->acf_field_group,
+			'resolve'         => function ( $root, $args, AppContext $context, ResolveInfo $info ) {
+				return $this->resolve_field( $root, $args, $context, $info );
+			},
+		];
+
+
+		if ( ! empty( $this->acf_field['type'] ) ) {
+			$graphql_field_type = $this->get_graphql_field_type();
+
+			// If the field type overrode the resolver, use it
+			if ( null !== $graphql_field_type && method_exists( $graphql_field_type, 'get_resolver' ) ) {
+				$resolver                = function ( $root, $args, AppContext $context, ResolveInfo $info ) use ( $graphql_field_type ) {
+					return $graphql_field_type->get_resolver( $root, $args, $context, $info, $graphql_field_type, $this );
+				};
+				$field_config['resolve'] = $resolver;
+			}
+
+			if ( $graphql_field_type instanceof AcfGraphQLFieldType ) {
+				$field_type = $graphql_field_type->get_resolve_type( $this );
+			}
+
+			if ( empty( $field_type ) ) {
+				$field_type = 'String';
+			}
+
+			// if the field type returns a connection,
+			// bail and let the connection handle registration to the schema
+			// and resolution
+			if ( 'connection' === $field_type ) {
+				$this->registry->register_field( $this->acf_field );
+				return null;
+			}
+
+			// if the field type returns a NULL type,
+			// bail and prevent the field from being directly mapped to the Schema
+			if ( 'NULL' === $field_type ) {
+				return null;
+			}
+
+			switch ( $this->acf_field['type'] ) {
+				case 'color_picker':
+				case 'number':
+				case 'range':
+				case 'group':
+				case 'wysiwyg':
+				case 'google_map':
+				case 'link':
+				case 'oembed':
+				case 'radio':
+				case 'date_picker':
+				case 'date_time_picker':
+				case 'time_picker':
+				case 'flexible_content':
+				case 'button_group':
+				case 'repeater':
+					$field_config['type'] = $field_type;
+					break;
+				case 'true_false':
+					$field_config['type']    = $field_type;
+					$field_config['resolve'] = function ( $node, array $args, AppContext $context, ResolveInfo $info ) {
+						$value = $this->resolve_field( $node, $args, $context, $info );
+						return (bool) $value;
+					};
+					break;
+				case 'checkbox':
+				case 'select':
+					$field_config['type']    = $field_type;
+					$field_config['resolve'] = function ( $node, array $args, AppContext $context, ResolveInfo $info ) {
+						$value = $this->resolve_field( $node, $args, $context, $info );
+
+						if ( ! is_array( $value ) && self::is_empty_value( $value ) ) {
+							return null;
+						}
+
+						return is_array( $value ) ? $value : [ $value ];
+					};
+					break;
+
+				default:
+					$field_config['type'] = $field_type;
+					break;
+			}
+		}
+
+		/**
+		 * Filter the graphql_field_config for an ACF Field
+		 *
+		 * @param array|null                 $field_config   The field config array passed to the schema registration
+		 * @param \WPGraphQL\Acf\FieldConfig $instance       Instance of the FieldConfig class
+		 */
+		return \apply_filters( 'wpgraphql/acf/get_graphql_field_config', $field_config, $this );
+	}
+
+	/**
+	 * Determine if the field should ask ACF to format the response when retrieving
+	 * the field using get_field()
+	 *
+	 * A field type decides this with the boolean `format_value` option of its
+	 * register_graphql_acf_field_type() config: `true` formats, `false` doesn't. Only a boolean is
+	 * used. Field types that don't set it, or set it to anything else (like a callable or `1`), fall
+	 * back to the built-in list below.
+	 *
+	 * @param string $field_type The ACF Field Type of field being resolved
+	 */
+	public function should_format_field_value( string $field_type ): bool {
+		$graphql_field_type = Utils::get_graphql_field_type( $field_type );
+		$format_value       = $graphql_field_type ? $graphql_field_type->get_config( 'format_value' ) : null;
+
+		if ( is_bool( $format_value ) ) {
+			return $format_value;
+		}
+
+		$types_to_format = [
+			'select',
+			'wysiwyg',
+			'repeater',
+			'flexible_content',
+			'oembed',
+			'clone',
+		];
+
+		return in_array( $field_type, $types_to_format, true );
+	}
+
+	/**
+	 * Determine if a field nested in a row (of a repeater, flexible content or group field)
+	 * should resolve from the row's stored (unformatted) value instead of its formatted value.
+	 *
+	 * Most of these fields resolve connections by ID. Depending on the field's return format, ACF
+	 * formats their value as a URL (and always does for page_link), which can't be resolved back to
+	 * a node. A link field resolves the AcfLink type from the stored title, url and target, which
+	 * ACF reduces to just the URL with the "url" return format. Date, date time and time picker
+	 * fields parse the stored value, because a formatted one can drop its seconds or be ambiguous
+	 * (strtotime() reads "05/06/2026" as May 6). Top-level fields of these types are already read
+	 * unformatted.
+	 *
+	 * @param string $field_type The ACF Field Type of field being resolved
+	 */
+	protected function should_resolve_raw_row_value( string $field_type ): bool {
+		$types_to_resolve_raw = [
+			'page_link',
+			'post_object',
+			'relationship',
+			'image',
+			'file',
+			'gallery',
+			'taxonomy',
+			'user',
+			'link',
+			'date_picker',
+			'date_time_picker',
+			'time_picker',
+		];
+
+		return in_array( $field_type, $types_to_resolve_raw, true );
+	}
+
+	/**
+	 * Get the stored (unformatted) values of the row being resolved, if they were passed down.
+	 *
+	 * @param mixed $root The row passed down the resolve tree
+	 *
+	 * @return array<mixed>|null
+	 */
+	protected function get_raw_row( $root ): ?array {
+		if ( ! is_array( $root ) || ! isset( $root[ self::$raw_row_key ] ) || ! is_array( $root[ self::$raw_row_key ] ) ) {
+			return null;
+		}
+
+		return $root[ self::$raw_row_key ];
+	}
+
+	/**
+	 * Pass the stored (unformatted) values of a repeater, flexible content or group field down
+	 * alongside its formatted rows, so nested fields can resolve from the stored value.
+	 *
+	 * @see self::should_resolve_raw_row_value()
+	 *
+	 * @param mixed        $value        The formatted value of the field
+	 * @param mixed        $raw_value    The stored (unformatted) value of the field
+	 * @param array<mixed> $field_config The ACF Field Config for the field being resolved
+	 *
+	 * @return mixed
+	 */
+	protected function attach_raw_rows( $value, $raw_value, array $field_config ) {
+		if ( ! is_array( $value ) || ! is_array( $raw_value ) || empty( $field_config['type'] ) ) {
+			return $value;
+		}
+
+		switch ( $field_config['type'] ) {
+			case 'group':
+				$value[ self::$raw_row_key ] = $raw_value;
+				break;
+			case 'repeater':
+			case 'flexible_content':
+				foreach ( $value as $index => $row ) {
+					if ( ! is_array( $row ) || ! isset( $raw_value[ $index ] ) || ! is_array( $raw_value[ $index ] ) ) {
+						continue;
+					}
+
+					// Only pair rows that describe the same flexible content layout
+					if ( ( $row['acf_fc_layout'] ?? null ) !== ( $raw_value[ $index ]['acf_fc_layout'] ?? null ) ) {
+						continue;
+					}
+
+					$value[ $index ][ self::$raw_row_key ] = $raw_value[ $index ];
+				}
+				break;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Format the stored value of a field the way get_field() formats it, for the field types that
+	 * resolve formatted values from stored values passed down to them.
+	 *
+	 * Values passed down by field key, like the sub fields of a group field, and values read from a
+	 * block's data are stored values. WYSIWYG values get ACF's WYSIWYG formatting (see
+	 * format_stored_wysiwyg_value()). A field type that opts into formatted values by setting the
+	 * boolean `format_value` option of its register_graphql_acf_field_type() config to `true` gets
+	 * ACF's formatting for its type. Built-in field types that are formatted without setting the
+	 * option, like select, keep resolving the stored value here.
+	 *
+	 * @param mixed            $value        The stored value of the field
+	 * @param array<mixed>     $field_config The ACF Field Config for the field being resolved
+	 * @param mixed            $root         The root node/object the field belongs to
+	 * @param mixed|string|int $node_id      The ID of the node the field belongs to
+	 *
+	 * @return mixed
+	 */
+	protected function format_stored_value( $value, array $field_config, $root, $node_id ) {
+		$field_type = $field_config['type'] ?? null;
+
+		if ( 'wysiwyg' === $field_type ) {
+			return $this->format_stored_wysiwyg_value( $value, $field_config, $root, $node_id );
+		}
+
+		if ( ! is_string( $field_type ) || self::is_empty_value( $value ) ) {
+			return $value;
+		}
+
+		$graphql_field_type = Utils::get_graphql_field_type( $field_type );
+
+		if ( ! $graphql_field_type || true !== $graphql_field_type->get_config( 'format_value' ) ) {
+			return $value;
+		}
+
+		// The same filter acf_format_value() applies, without reading or writing its cache, which is
+		// keyed by field name, so a sub field could read the formatted value of a top-level field
+		// with the same name.
+		return \apply_filters( 'acf/format_value', $value, $node_id, $field_config, false );
+	}
+
+	/**
+	 * Apply ACF's WYSIWYG formatting (the acf_the_content filter and the "]]>" escape, which
+	 * get_field() runs when it formats the value) to the stored value of a WYSIWYG field.
+	 *
+	 * Values passed down by field key, like the sub fields of a group field, and values read from a
+	 * block's data are stored values.
+	 *
+	 * @param mixed            $value        The stored value of the field
+	 * @param array<mixed>     $field_config The ACF Field Config for the field being resolved
+	 * @param mixed            $root         The root node/object the field belongs to
+	 * @param mixed|string|int $node_id      The ID of the node the field belongs to
+	 *
+	 * @return mixed
+	 */
+	protected function format_stored_wysiwyg_value( $value, array $field_config, $root, $node_id ) {
+		if ( 'wysiwyg' !== ( $field_config['type'] ?? null ) || ! is_string( $value ) ) {
+			return $value;
+		}
+
+		if ( \has_blocks( $value ) && self::should_render_wysiwyg_blocks( $value, $field_config, $root, $node_id ) ) {
+			$value = Wysiwyg::format_with_blocks_rendered(
+				static function () use ( $value ) {
+					return \apply_filters( 'acf_the_content', $value );
+				}
+			);
+		} else {
+			$value = \apply_filters( 'acf_the_content', $value );
+		}
+
+		// ACF's WYSIWYG field escapes this after acf_the_content too, the same as the_content does.
+		return str_replace( ']]>', ']]&gt;', $value );
+	}
+
+	/**
+	 * Calls $get_value, which reads a field with get_field() or get_sub_field(), so that block
+	 * markup in the WYSIWYG values ACF formats renders the way the_content renders it. That
+	 * includes the WYSIWYG sub fields of repeater, flexible content and clone fields, which ACF
+	 * formats along with their parent.
+	 *
+	 * The values are formatted without ACF's cache of formatted values, so get_field() doesn't
+	 * return a value formatted for GraphQL later in the request, and the other way around.
+	 *
+	 * @param callable         $get_value Reads the field's formatted value.
+	 * @param mixed            $root      The root node/object the field belongs to
+	 * @param mixed|string|int $node_id   The ID of the node the field belongs to
+	 *
+	 * @return mixed What $get_value returns.
+	 */
+	protected function with_wysiwyg_blocks_rendered( callable $get_value, $root, $node_id ) {
+		$pre_format = static function ( $check, $value, $post_id, $field, $escape_html = false ) use ( $root, $node_id ) {
+			if ( null !== $check || ! is_array( $field ) || 'wysiwyg' !== ( $field['type'] ?? null ) || ! is_string( $value ) || ! \has_blocks( $value ) ) {
+				return $check;
+			}
+
+			if ( ! self::should_render_wysiwyg_blocks( $value, $field, $root, $node_id ) ) {
+				return $check;
+			}
+
+			// The same filter acf_format_value() applies, without reading or writing its cache.
+			return Wysiwyg::format_with_blocks_rendered(
+				static function () use ( $value, $post_id, $field, $escape_html ) {
+					return \apply_filters( 'acf/format_value', $value, $post_id, $field, $escape_html );
+				}
+			);
+		};
+
+		\add_filter( 'acf/pre_format_value', $pre_format, 10, 5 );
+
+		try {
+			return $get_value();
+		} finally {
+			\remove_filter( 'acf/pre_format_value', $pre_format, 10 );
+		}
+	}
+
+	/**
+	 * Whether to render the block markup in a WYSIWYG field's value.
+	 *
+	 * @param string           $value            The field's value
+	 * @param array<mixed>     $acf_field_config The ACF Field Config for the field being resolved
+	 * @param mixed            $root             The root node/object the field belongs to
+	 * @param mixed|string|int $node_id          The ID of the node the field belongs to
+	 */
+	protected static function should_render_wysiwyg_blocks( string $value, array $acf_field_config, $root, $node_id ): bool {
+		/**
+		 * Filters whether block markup in a WYSIWYG field's value is rendered.
+		 *
+		 * ACF's own formatting (the acf_the_content filter) doesn't render blocks. By default, block
+		 * markup in a WYSIWYG value is rendered the way the_content renders it: the blocks are
+		 * rendered before ACF's wpautop, which then skips the value. Without this, block markup in
+		 * a WYSIWYG value is returned with ACF's formatting only: static blocks keep their block
+		 * comments, and dynamic blocks return only their block comment.
+		 *
+		 * @param bool             $render_blocks    Whether to render the blocks. Default true.
+		 * @param string           $value            The field's value, with its block markup.
+		 * @param array<mixed>     $acf_field_config The ACF Field Config for the field being resolved.
+		 * @param mixed            $root             The root node/object the field belongs to.
+		 * @param mixed|string|int $node_id          The ID of the node the field belongs to.
+		 *
+		 * @since 3.1.0
+		 */
+		return (bool) \apply_filters( 'wpgraphql/acf/wysiwyg/render_blocks', true, $value, $acf_field_config, $root, $node_id );
+	}
+
+	/**
+	 * @param string          $selector
+	 * @param string|null     $parent_field_name
+	 * @param string|int|null $post_id
+	 * @param bool            $should_format
+	 *
+	 * @return false|mixed
+	 */
+	protected function get_field( string $selector, ?string $parent_field_name = null, $post_id = null, bool $should_format = false ) {
+		if ( ! empty( $parent_field_name ) ) {
+			$value = get_sub_field( $selector, $should_format );
+		} else {
+			$value = get_field( $selector, $post_id, $should_format );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * @param mixed                                $root
+	 * @param array<mixed>                         $args
+	 * @param \WPGraphQL\AppContext                $context
+	 * @param \GraphQL\Type\Definition\ResolveInfo $info
+	 * @param array<mixed>                         $acf_field The ACF Field to resolve for
+	 *
+	 * @return mixed
+	 */
+	public function resolve_field( $root, array $args, AppContext $context, ResolveInfo $info, $acf_field = [] ) {
+		$field_config = $info->fieldDefinition->config['acf_field'] ?? $this->acf_field;
+		// merge the field config and the acf_field passed in
+		$field_config = array_merge( $field_config, $acf_field );
+		$node         = $root['node'] ?? null;
+		$node_id      = $node ? Utils::get_node_acf_id( $node ) : null;
+		$return_value = null;
+		$field_key    = null;
+		$is_cloned    = false;
+
+		if ( ! empty( $field_config['__key'] ) ) {
+			$field_key = $field_config['__key'];
+			$is_cloned = true;
+		} elseif ( ! empty( $field_config['key'] ) ) {
+			$field_key = $field_config['key'];
+		}
+
+		if ( empty( $field_key ) ) {
+			return null;
+		}
+
+		if ( $is_cloned ) {
+			if ( isset( $field_config['_name'] ) && ! empty( $node_id ) ) {
+				$field_key = $field_config['_name'];
+			} elseif ( ! empty( $field_config['__key'] ) ) {
+				$field_key = $field_config['__key'];
+			}
+		}
+
+
+		$should_format_value = false;
+
+		if ( ! empty( $field_config['type'] ) && $this->should_format_field_value( $field_config['type'] ) ) {
+			$should_format_value = true;
+		}
+
+		if ( empty( $field_key ) ) {
+			return null;
+		}
+
+		// if the field_config is empty or not an array, set it as an empty array as a fallback
+		$field_config = ! empty( $field_config ) ? $field_config : [];
+
+		// Rows of repeater and flexible content fields are passed down formatted, but may carry
+		// their stored values too. Fields that resolve by ID, and date fields, use the stored value,
+		// like top-level fields do. See should_resolve_raw_row_value().
+		$raw_row       = $this->get_raw_row( $root );
+		$raw_row_value = null;
+		if ( null !== $raw_row && isset( $field_config['key'] ) && isset( $raw_row[ $field_config['key'] ] ) ) {
+			$raw_row_value = $raw_row[ $field_config['key'] ];
+		}
+
+		if ( ! empty( $raw_row_value ) && ! empty( $field_config['type'] ) && $this->should_resolve_raw_row_value( $field_config['type'] ) ) {
+			return $this->prepare_acf_field_value( $raw_row_value, $node, $node_id, $field_config );
+		}
+
+		// If the root being passed down already has a value
+		// for the field key, let's use it to resolve
+		if ( isset( $field_config['key'] ) && isset( $root[ $field_config['key'] ] ) && ! self::is_empty_value( $root[ $field_config['key'] ] ) ) {
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_value( $root[ $field_config['key'] ], $field_config, $node, $node_id ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
+		}
+
+		// Check if the cloned field key is being used to pass values down
+		if ( isset( $field_config['__key'] ) && isset( $root[ $field_config['__key'] ] ) && ! self::is_empty_value( $root[ $field_config['__key'] ] ) ) {
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $this->format_stored_value( $root[ $field_config['__key'] ], $field_config, $node, $node_id ), $raw_row_value, $field_config ), $node, $node_id, $field_config );
+		}
+
+		// Else check if the values are being passed down via the name
+		if ( isset( $field_config['name'] ) && isset( $root[ '_' . $field_config['name'] ] ) && ! self::is_empty_value( $root[ '_' . $field_config['name'] ] ) ) {
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ '_' . $field_config['name'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
+		}
+
+		// Else check if the values are being passed down via the name
+		if ( isset( $field_config['name'] ) && isset( $root[ $field_config['name'] ] ) && ! self::is_empty_value( $root[ $field_config['name'] ] ) ) {
+			return $this->prepare_acf_field_value( $this->attach_raw_rows( $root[ $field_config['name'] ], $raw_row_value, $field_config ), $node, $node_id, $field_config );
+		}
+
+		/**
+		 * Filter the field value before resolving.
+		 *
+		 * @param mixed            $value     The value of the ACF Field stored on the node
+		 * @param mixed            $node      The object the field is connected to
+		 * @param mixed|string|int $node_id   The ACF ID of the node to resolve the field with
+		 * @param array            $acf_field The ACF Field config
+		 * @param bool             $format    Whether to apply formatting to the field
+		 * @param string           $field_key The key of the field being resolved
+		 */
+		$pre_value = \apply_filters( 'wpgraphql/acf/pre_resolve_acf_field', null, $root, $node_id, $field_config, $should_format_value, $field_key );
+
+		// If the filter has returned a value, we can return the value that was returned.
+		if ( null !== $pre_value ) {
+			return $pre_value;
+		}
+
+		$parent_field_name = null;
+		if ( ! empty( $field_config['parent'] ) ) {
+			$parent_field = acf_get_field( $field_config['parent'] );
+			if ( ! empty( $parent_field['name'] ) ) {
+				$parent_field_name = $parent_field['name'];
+			}
+		}
+
+		// resolve block field
+		if ( is_array( $node ) && isset( $node['blockName'], $node['attrs'] ) ) {
+			$block = $node['attrs'];
+
+			// Ensure the block has an ID
+			if ( ! isset( $block['id'] ) ) {
+				$block['id'] = uniqid( 'block_', true );
+			}
+
+			$block    = acf_prepare_block( $block );
+			$block_id = acf_get_block_id( $node['attrs'] );
+			$block_id = acf_ensure_block_id_prefix( $block_id );
+
+			acf_setup_meta( $block['data'] ?? [], $block_id, true );
+
+			$return_value = $this->with_wysiwyg_blocks_rendered(
+				function () use ( $field_config, $parent_field_name, $block_id, $should_format_value ) {
+					return $this->get_field( $field_config['name'], $parent_field_name, $block_id, $should_format_value );
+				},
+				$root,
+				$node_id
+			);
+			if ( in_array( $field_config['type'] ?? null, [ 'repeater', 'flexible_content' ], true ) ) {
+				$return_value = $this->attach_raw_rows( $return_value, $this->get_field( $field_config['name'], $parent_field_name, $block_id, false ), $field_config );
+			}
+			acf_reset_meta( $block_id );
+
+			if ( self::is_empty_value( $return_value ) && isset( $node['attrs']['data'][ $field_config['name'] ] ) ) {
+				$return_value = $this->format_stored_value( $node['attrs']['data'][ $field_config['name'] ], $field_config, $root, $node_id );
+			}
+
+			if ( self::is_empty_value( $return_value ) && ( ! empty( $parent_field_name ) && isset( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) && ! self::is_empty_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ] ) ) ) {
+				$return_value = $this->format_stored_value( $node['attrs']['data'][ $parent_field_name . '_' . $field_config['name'] ], $field_config, $root, $node_id );
+			}
+		}
+
+
+
+		// If there's no node_id at this point, we can return null
+		if ( self::is_empty_value( $return_value ) && empty( $node_id ) ) {
+			return null;
+		}
+
+		// if a value hasn't been set yet, use the get_field() function to get the value
+		if ( self::is_empty_value( $return_value ) ) {
+			$return_value = $this->with_wysiwyg_blocks_rendered(
+				function () use ( $field_key, $parent_field_name, $node_id, $should_format_value ) {
+					return $this->get_field( $field_key, $parent_field_name, $node_id, $should_format_value );
+				},
+				$root,
+				$node_id
+			);
+			if ( in_array( $field_config['type'] ?? null, [ 'repeater', 'flexible_content' ], true ) ) {
+				$return_value = $this->attach_raw_rows( $return_value, $this->get_field( $field_key, $parent_field_name, $node_id, false ), $field_config );
+			}
+		}
+
+		// Prepare the value for response
+		$prepared_value = $this->prepare_acf_field_value( $return_value, $root, $node_id, $field_config );
+		// Empty values are set to null (0 and "0" are values, not empty)
+		if ( self::is_empty_value( $prepared_value ) ) {
+			$prepared_value = null;
+		}
+
+		/**
+		 * Filter the value before returning
+		 *
+		 * @param mixed $value
+		 * @param array $field_config The ACF Field Config for the field being resolved
+		 * @param mixed $root The Root node or object of the field being resolved
+		 * @param mixed $node_id The ID of the node being resolved
+		 */
+		return \apply_filters( 'wpgraphql/acf/field_value', $prepared_value, $field_config, $root, $node_id );
+	}
+
+	/**
+	 * Whether a field value counts as "no value".
+	 *
+	 * Like empty(), except that the number 0 and the string "0" are values: a field that stores 0
+	 * should resolve as 0, not null.
+	 *
+	 * @param mixed $value The field value.
+	 */
+	protected static function is_empty_value( $value ): bool {
+		return null === $value || false === $value || '' === $value || [] === $value;
+	}
+
+	/**
+	 * Given a value of an ACF Field, this prepares it for response by applying formatting, etc based on
+	 * the field type.
+	 *
+	 * @param mixed            $value   The value of the ACF field to return
+	 * @param mixed            $root    The root node/object the field belongs to
+	 * @param mixed|string|int $node_id The ID of the node the field belongs to
+	 * @param ?array           $acf_field_config The ACF Field Config for the field being resolved
+	 *
+	 * @return mixed
+	 */
+	public function prepare_acf_field_value( $value, $root, $node_id, ?array $acf_field_config = [] ) {
+		if ( empty( $acf_field_config ) || ! is_array( $acf_field_config ) ) {
+			return $value;
+		}
+
+		// If the field's return format is "array" (ACF's "Both (Array)"), ACF formats each chosen
+		// option as [ 'value' => ..., 'label' => ... ]. Resolve the values.
+		if ( isset( $acf_field_config['return_format'] ) && 'array' === $acf_field_config['return_format'] && is_array( $value ) ) {
+			if ( array_key_exists( 'value', $value ) && array_key_exists( 'label', $value ) ) {
+				// A single choice (a select that allows one value, a radio, a button group) is one
+				// such array, rather than a list of them.
+				$value = $value['value'];
+			} else {
+				$value = array_map(
+					static function ( $opt ) {
+						if ( ! is_array( $opt ) ) {
+							return $opt;
+						}
+
+						return $opt['value'] ?? null;
+					},
+					$value
+				);
+			}
+		}
+
+		if ( isset( $acf_field_config['new_lines'] ) ) {
+			if ( 'wpautop' === $acf_field_config['new_lines'] ) {
+				$value = \wpautop( $value );
+			}
+			if ( 'br' === $acf_field_config['new_lines'] ) {
+				$value = \nl2br( $value );
+			}
+		}
+
+		// Block markup in a WYSIWYG value is rendered while the value is formatted (see
+		// with_wysiwyg_blocks_rendered() and format_stored_wysiwyg_value()). If a value still has
+		// block markup, it was formatted some other way, like by a version of ACF without the
+		// acf/pre_format_value filter, or rendering was turned off. Render it after ACF's formatting.
+		if ( 'wysiwyg' === ( $acf_field_config['type'] ?? null ) && is_string( $value ) && \has_blocks( $value ) && self::should_render_wysiwyg_blocks( $value, $acf_field_config, $root, $node_id ) ) {
+			$value = \do_blocks( $value );
+		}
+
+		if ( ! empty( $acf_field_config['type'] ) && 'time_picker' === $acf_field_config['type'] ) {
+			if ( ! empty( $value ) && ! empty( $acf_field_config['return_format'] ) ) {
+				$value = gmdate( $acf_field_config['return_format'], strtotime( $value ) );
+			}
+		}
+
+		if ( ! empty( $acf_field_config['type'] ) && in_array( $acf_field_config['type'], [ 'number', 'range' ], true ) ) {
+			$value = is_numeric( $value ) ? (float) $value : null;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * @param string $to_type
+	 */
+	public function get_connection_name( string $to_type ): string {
+		return \WPGraphQL\Utils\Utils::format_type_name( 'Acf' . ucfirst( $to_type ) . 'Connection' );
+	}
+
+	/**
+	 * @param array<mixed> $config The Connection Config to use
+	 *
+	 * @throws \Exception
+	 */
+	public function register_graphql_connections( array $config ): void {
+		$type_name = $this->get_graphql_field_group_type_name();
+		$to_type   = $config['toType'] ?? null;
+
+		// If there's no to_type or type_name, we can't proceed
+		if ( empty( $to_type ) || empty( $type_name ) ) {
+			return;
+		}
+
+		$connection_name = $this->get_connection_name( $to_type );
+
+		$connection_config = array_merge(
+			[
+				'description'           => $this->get_field_description(),
+				'acf_field'             => $this->get_acf_field(),
+				'acf_field_group'       => $this->get_acf_field_group(),
+				'fromType'              => $type_name,
+				'toType'                => $to_type,
+				'connectionTypeName'    => $connection_name,
+				'fromFieldName'         => $this->get_graphql_field_name(),
+				'allowFieldUnderscores' => true,
+			],
+			$config
+		);
+
+		$connection_key = $this->get_graphql_field_name() . ':' . $type_name . ':' . $to_type;
+
+		if ( $this->registry->has_registered_field_group( $connection_key ) ) {
+			return;
+		}
+
+		// Register the connection to the Field Group Type
+		if ( defined( 'WPGRAPHQL_VERSION' ) && version_compare( WPGRAPHQL_VERSION, '1.23.0', '<=' ) ) {
+			register_graphql_connection( $connection_config );
+		}
+
+		// Register the connection to the Field Group Fields Interface
+		register_graphql_connection( array_merge( $connection_config, [ 'fromType' => $type_name . '_Fields' ] ) );
+
+		$this->registry->register_field_group( $connection_key, $connection_config );
+	}
+}

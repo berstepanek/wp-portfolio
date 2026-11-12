@@ -1,0 +1,417 @@
+# Changelog
+
+## [3.2.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.2.0...wp-graphql-acf/v3.2.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* only show deactivation feedback when usage tracking is opted in ([#4655](https://github.com/wp-graphql/wp-graphql/issues/4655)) ([8baf10b](https://github.com/wp-graphql/wp-graphql/commit/8baf10bce02ad425969814db19d49d233efbbc79))
+
+## [3.2.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.1.0...wp-graphql-acf/v3.2.0) (2026-11-05)
+
+
+### New Features
+
+* **acf:** let custom field types resolve ACF's formatted value ([#4609](https://github.com/wp-graphql/wp-graphql/issues/4609)) ([6013ed6](https://github.com/wp-graphql/wp-graphql/commit/6013ed6f734886f76e3b82c35beb055219172aa0))
+
+
+### Bug Fixes
+
+* **acf:** give a duplicated field its own GraphQL field name ([#4610](https://github.com/wp-graphql/wp-graphql/issues/4610)) ([e385f72](https://github.com/wp-graphql/wp-graphql/commit/e385f72bf1db01a06113413c0db695110d365411))
+* **acf:** return null for an options page whose loader has been replaced ([#4649](https://github.com/wp-graphql/wp-graphql/issues/4649)) ([be038d5](https://github.com/wp-graphql/wp-graphql/commit/be038d56c0f06b65bf9440eb04fef8c0d6162592))
+* **acf:** stop loading every stored ACF field for each flexible content layout ([#4611](https://github.com/wp-graphql/wp-graphql/issues/4611)) ([4dbb190](https://github.com/wp-graphql/wp-graphql/commit/4dbb1906eba940cb6dc7abd633fa1c6612bc1dc2))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.24.2 to 2.25.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4631](https://github.com/wp-graphql/wp-graphql/issues/4631)) ([c626947](https://github.com/wp-graphql/wp-graphql/commit/c6269472893868b1410f3286dd81f91ed6b5cb27))
+
+## [3.1.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v3.0.0...wp-graphql-acf/v3.1.0) (2026-10-30)
+
+
+### New Features
+
+* **acf:** test and document Secure Custom Fields support ([#4573](https://github.com/wp-graphql/wp-graphql/issues/4573)) ([7aca6b1](https://github.com/wp-graphql/wp-graphql/commit/7aca6b1767e9d7ef29a74fcb60da7f56904583ff))
+
+
+### Bug Fixes
+
+* **acf:** apply field groups located on "All" blocks to every ACF block type ([#4565](https://github.com/wp-graphql/wp-graphql/issues/4565)) ([10db567](https://github.com/wp-graphql/wp-graphql/commit/10db567b7e36b38b19a69fd1a41d07b58d6ca91d))
+* **acf:** don't run WYSIWYG field values through the_content ([#4585](https://github.com/wp-graphql/wp-graphql/issues/4585)) ([cc6bd1f](https://github.com/wp-graphql/wp-graphql/commit/cc6bd1f78d79b99cfb384b53d346e20340a71a11))
+* **acf:** don't warn about unsaved changes after opening a field group ([#4579](https://github.com/wp-graphql/wp-graphql/issues/4579)) ([d601e04](https://github.com/wp-graphql/wp-graphql/commit/d601e049118dd25d929012d5a0d73ce8c4c69dde))
+* **acf:** exclude types matched by "not equal to" location rules ([#4431](https://github.com/wp-graphql/wp-graphql/issues/4431)) ([f113c00](https://github.com/wp-graphql/wp-graphql/commit/f113c0077d6233b0c085fa89ca74fa3e665439e5))
+* **acf:** keep a field group's key and GraphQL settings when saving on ACF before 6.1 ([#4571](https://github.com/wp-graphql/wp-graphql/issues/4571)) ([3f47cee](https://github.com/wp-graphql/wp-graphql/commit/3f47cee2833b15a5c58ac851ebae756f85648c44))
+* **acf:** preserve Date Time Picker seconds and resolve nested row dates from stored values ([#4594](https://github.com/wp-graphql/wp-graphql/issues/4594)) ([954d880](https://github.com/wp-graphql/wp-graphql/commit/954d880385226a3556b8f3d79af3360e7d09cb08))
+* **acf:** render blocks in WYSIWYG values before ACF's wpautop ([#4606](https://github.com/wp-graphql/wp-graphql/issues/4606)) ([1d04129](https://github.com/wp-graphql/wp-graphql/commit/1d041291f7701f7ea8278c60edd24928aa6e7d0c))
+* **acf:** resolve a single "Both (Array)" choice as its value ([#4583](https://github.com/wp-graphql/wp-graphql/issues/4583)) ([f4cf962](https://github.com/wp-graphql/wp-graphql/commit/f4cf962f6374cd1652d992f748e40607d5052e76))
+* **acf:** resolve connection fields nested in repeater, flexible content and group rows ([#4380](https://github.com/wp-graphql/wp-graphql/issues/4380)) ([2a3a064](https://github.com/wp-graphql/wp-graphql/commit/2a3a064fc7c9fa93625183156ab55db744970ed5))
+* **acf:** resolve link fields with the URL return format inside rows ([#4580](https://github.com/wp-graphql/wp-graphql/issues/4580)) ([c0dc6a9](https://github.com/wp-graphql/wp-graphql/commit/c0dc6a95a26a1e924ff1d09d098e3aa18980ffa5))
+* **acf:** resolve stored 0 values as 0 instead of null ([#4581](https://github.com/wp-graphql/wp-graphql/issues/4581)) ([62b4301](https://github.com/wp-graphql/wp-graphql/commit/62b43019fa3cebb89aee061d5c9816a056ad2156))
+* **acf:** stop deprecating fieldGroupName ([#4582](https://github.com/wp-graphql/wp-graphql/issues/4582)) ([90783d6](https://github.com/wp-graphql/wp-graphql/commit/90783d6fde21fd6f14c0e8ecb5367398f82b9900))
+* **acf:** update the Appsero client so telemetry no longer loads translations too early ([#4567](https://github.com/wp-graphql/wp-graphql/issues/4567)) ([e39c2a0](https://github.com/wp-graphql/wp-graphql/commit/e39c2a0dc50dafb2c8e90f9eaec1dd9b881deb01))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.20.0 to 2.22.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4324](https://github.com/wp-graphql/wp-graphql/issues/4324)) ([fb6de5c](https://github.com/wp-graphql/wp-graphql/commit/fb6de5caff22ed7ea3f4828e5a34228b247c7643))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.22.2 to 2.23.1 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group across 1 directory ([#4349](https://github.com/wp-graphql/wp-graphql/issues/4349)) ([9b0e15a](https://github.com/wp-graphql/wp-graphql/commit/9b0e15a59595d916062810028ca9bbe5781e8f53))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.23.1 to 2.24.2 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4590](https://github.com/wp-graphql/wp-graphql/issues/4590)) ([75b0889](https://github.com/wp-graphql/wp-graphql/commit/75b088980f9453e8759c8fabefc41f819ebae31a))
+* **deps-dev:** bump composer/composer from 2.2.29 to 2.2.30 in /plugins/wp-graphql-acf ([#4281](https://github.com/wp-graphql/wp-graphql/issues/4281)) ([cae29d0](https://github.com/wp-graphql/wp-graphql/commit/cae29d0f0cec12ae3e2a522ce17d46fe46db8712))
+* **deps-dev:** bump symfony/yaml from 5.4.53 to 5.4.54 in /plugins/wp-graphql-acf ([#4596](https://github.com/wp-graphql/wp-graphql/issues/4596)) ([8ff0058](https://github.com/wp-graphql/wp-graphql/commit/8ff00587bbd9dcb3412e4337b68c3dd45e31e6a2))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 11 updates ([#4290](https://github.com/wp-graphql/wp-graphql/issues/4290)) ([d21aca0](https://github.com/wp-graphql/wp-graphql/commit/d21aca07636defbfded795eb3705d6f5355f4eb3))
+* **deps-dev:** bump the npm-dev-minor-patch group, with the @wordpress/env patch regenerated ([#4478](https://github.com/wp-graphql/wp-graphql/issues/4478)) ([077b164](https://github.com/wp-graphql/wp-graphql/commit/077b1640a726546a65d6fced7ac7ab303f272249))
+
+## [3.0.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.8.0...wp-graphql-acf/v3.0.0) (2026-09-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **acf:** require explicit show_in_graphql opt-in for ACF options pages ([#4280](https://github.com/wp-graphql/wp-graphql/issues/4280))
+
+### Bug Fixes
+
+* **acf:** require explicit show_in_graphql opt-in for ACF options pages ([#4280](https://github.com/wp-graphql/wp-graphql/issues/4280)) ([a96934f](https://github.com/wp-graphql/wp-graphql/commit/a96934f6949403e06bc306f7bccd602f7128a55e))
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.19.0 to 2.20.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group across 1 directory ([#4244](https://github.com/wp-graphql/wp-graphql/issues/4244)) ([afe34c4](https://github.com/wp-graphql/wp-graphql/commit/afe34c4bbd43c14d5aa0547039f3cd780795cbf6))
+
+## [2.8.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.7.1...wp-graphql-acf/v2.8.0) (2026-08-31)
+
+
+### New Features
+
+* preview ACF field values under the request-level preview context ([#4222](https://github.com/wp-graphql/wp-graphql/issues/4222)) ([e88d5c2](https://github.com/wp-graphql/wp-graphql/commit/e88d5c273fe33a299c18e591656e6446df43440f))
+* **wpgraphql.com:** field types in the ACF docs nav with provider badges ([#4237](https://github.com/wp-graphql/wp-graphql/issues/4237)) ([1ec5e98](https://github.com/wp-graphql/wp-graphql/commit/1ec5e989a68a540f8e0198355f528bede978bb66))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump axepress/wp-graphql-stubs from 2.18.0 to 2.19.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4198](https://github.com/wp-graphql/wp-graphql/issues/4198)) ([f471e99](https://github.com/wp-graphql/wp-graphql/commit/f471e9936574d1ebbb777e005081ed51fd281e4b))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 12 updates ([#4226](https://github.com/wp-graphql/wp-graphql/issues/4226)) ([cd537dd](https://github.com/wp-graphql/wp-graphql/commit/cd537dda3e696deaf7262cdecc31bae05d929166))
+* point acf.wpgraphql.com links at the wpgraphql.com docs portal ([#4251](https://github.com/wp-graphql/wp-graphql/issues/4251)) ([cc12aed](https://github.com/wp-graphql/wp-graphql/commit/cc12aed380414545a005048bfcebe4ba50e9c8f9))
+* **wpgraphql.com:** make docs cross-links resolve on the site ([#4230](https://github.com/wp-graphql/wp-graphql/issues/4230)) ([e04ab21](https://github.com/wp-graphql/wp-graphql/commit/e04ab215cb4b65c9b490857dea9d303e5f93e959))
+
+## [2.7.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.7.0...wp-graphql-acf/v2.7.1) (2026-08-18)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/guzzle from 7.15.1 to 7.15.2 in /plugins/wp-graphql-acf ([#4158](https://github.com/wp-graphql/wp-graphql/issues/4158)) ([c616bbc](https://github.com/wp-graphql/wp-graphql/commit/c616bbc19cff68f50144aad5a0acda28371bc805))
+* **deps-dev:** bump squizlabs/php_codesniffer from 3.13.5 to 3.13.6 in /plugins/wp-graphql-acf ([#4177](https://github.com/wp-graphql/wp-graphql/issues/4177)) ([e571d6d](https://github.com/wp-graphql/wp-graphql/commit/e571d6dc1dd5172f0b79a61ff8c22961922b0221))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 7 updates ([#4154](https://github.com/wp-graphql/wp-graphql/issues/4154)) ([c2f8349](https://github.com/wp-graphql/wp-graphql/commit/c2f83492da50f100f88d2f9ae57d48f2026773fa))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4192](https://github.com/wp-graphql/wp-graphql/issues/4192)) ([5057a35](https://github.com/wp-graphql/wp-graphql/commit/5057a3552275686f9654c471ac36c42670814ef2))
+* **deps-dev:** bump the wp-graphql-acf-composer-dev-minor-patch group across 1 directory with 2 updates ([#4145](https://github.com/wp-graphql/wp-graphql/issues/4145)) ([d9dbec7](https://github.com/wp-graphql/wp-graphql/commit/d9dbec7c4615db093d5c75a18162119643bf6e52))
+* **deps-dev:** bump wp-coding-standards/wpcs from 3.3.0 to 3.4.1 in /plugins/wp-graphql-acf ([#4125](https://github.com/wp-graphql/wp-graphql/issues/4125)) ([00f1a90](https://github.com/wp-graphql/wp-graphql/commit/00f1a9085d8f6fc0c19868c8be3f9d0a4e56b47d))
+
+## [2.7.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.5...wp-graphql-acf/v2.7.0) (2026-07-23)
+
+
+### New Features
+
+* **settings:** support per-entry config in the normalized settings map ([#4049](https://github.com/wp-graphql/wp-graphql/issues/4049)) ([b78d6dc](https://github.com/wp-graphql/wp-graphql/commit/b78d6dcc1c223daa73fea36528ef028ee8427fae))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.28 to 2.2.29 in /plugins/wp-graphql-acf ([#4097](https://github.com/wp-graphql/wp-graphql/issues/4097)) ([6bb81eb](https://github.com/wp-graphql/wp-graphql/commit/6bb81ebffe37552c856033a3f704fabc1026c6ca))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.12.1 to 7.15.1 in /plugins/wp-graphql-acf ([#4103](https://github.com/wp-graphql/wp-graphql/issues/4103)) ([cecf205](https://github.com/wp-graphql/wp-graphql/commit/cecf205f3ed96be74d2bfd5e8468c61229a52f8e))
+
+## [2.6.5](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.4...wp-graphql-acf/v2.6.5) (2026-07-14)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/psr7 from 2.12.1 to 2.12.3 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#4034](https://github.com/wp-graphql/wp-graphql/issues/4034)) ([b274df4](https://github.com/wp-graphql/wp-graphql/commit/b274df4c227957a80852e860655a91619fe31549))
+* **deps-dev:** bump the npm-dev-minor-patch group with 9 updates ([#4036](https://github.com/wp-graphql/wp-graphql/issues/4036)) ([9dd355f](https://github.com/wp-graphql/wp-graphql/commit/9dd355f68eb19315ab226ee13852a28fdf7cd927))
+
+## [2.6.4](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.3...wp-graphql-acf/v2.6.4) (2026-06-30)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump eslint from 8.57.1 to 10.4.0 ([#3977](https://github.com/wp-graphql/wp-graphql/issues/3977)) ([2a5d914](https://github.com/wp-graphql/wp-graphql/commit/2a5d914bb2238e87087310ea5fadc9014ba246b2))
+* **deps-dev:** bump globals from 16.5.0 to 17.6.0 ([#4013](https://github.com/wp-graphql/wp-graphql/issues/4013)) ([9e637e4](https://github.com/wp-graphql/wp-graphql/commit/9e637e49565b7b6738f6253cf66d8d8fca1b583b))
+* **deps-dev:** bump guzzlehttp/guzzle from 7.10.0 to 7.12.1 in /plugins/wp-graphql-acf ([#3982](https://github.com/wp-graphql/wp-graphql/issues/3982)) ([42e407c](https://github.com/wp-graphql/wp-graphql/commit/42e407cdaa6f675eacfe087d7c7eef57d06d5209))
+* **deps-dev:** bump guzzlehttp/psr7 from 2.11.0 to 2.12.1 in /plugins/wp-graphql-acf ([#3980](https://github.com/wp-graphql/wp-graphql/issues/3980)) ([ace4b97](https://github.com/wp-graphql/wp-graphql/commit/ace4b975ee67e4e89da660f577f663d9c589d81d))
+* **deps-dev:** bump the npm-dev-minor-patch group across 1 directory with 8 updates ([#4015](https://github.com/wp-graphql/wp-graphql/issues/4015)) ([0c24553](https://github.com/wp-graphql/wp-graphql/commit/0c245535a49cde2172d4718e21a216eb98e9b237))
+* **deps-dev:** bump the wp-graphql-acf-composer-dev-minor-patch group in /plugins/wp-graphql-acf with 2 updates ([#3938](https://github.com/wp-graphql/wp-graphql/issues/3938)) ([c991ebb](https://github.com/wp-graphql/wp-graphql/commit/c991ebba555d946a23ff3a33a53a49bc0e747c36))
+* support WordPress 7.0 in the integration test matrix ([#3960](https://github.com/wp-graphql/wp-graphql/issues/3960)) ([391e7d3](https://github.com/wp-graphql/wp-graphql/commit/391e7d3fa02085f1905e87c2091bb025885dc6b6))
+* **wp-graphql-acf:** detect renamed Content Blocks constant so the integration loads ([#4005](https://github.com/wp-graphql/wp-graphql/issues/4005)) ([b5b604a](https://github.com/wp-graphql/wp-graphql/commit/b5b604a1d8c81b2b58b3c03a1041da86270091b4))
+* **wp-graphql-acf:** migrate ESLint to flat config for ESLint 10 ([#3995](https://github.com/wp-graphql/wp-graphql/issues/3995)) ([8e91566](https://github.com/wp-graphql/wp-graphql/commit/8e91566f1f4445195cfccebb8103b979a8de8031))
+* **wp-graphql-acf:** mock oEmbed in tests and unskip clone-field tests ([#3867](https://github.com/wp-graphql/wp-graphql/issues/3867)) ([0808257](https://github.com/wp-graphql/wp-graphql/commit/08082574d28efbf71d92d0c8dabe3ca04251beb9))
+
+## [2.6.3](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.2...wp-graphql-acf/v2.6.3) (2026-06-11)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/psr7 from 2.10.1 to 2.10.4 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#3887](https://github.com/wp-graphql/wp-graphql/issues/3887)) ([0e8e8b6](https://github.com/wp-graphql/wp-graphql/commit/0e8e8b6571c0c3f25fabc7506d6689eea6026c70))
+* **deps-dev:** bump php-stubs/acf-pro-stubs from 6.5.0 to 6.5.0.1 in /plugins/wp-graphql-acf ([#3888](https://github.com/wp-graphql/wp-graphql/issues/3888)) ([c4aac05](https://github.com/wp-graphql/wp-graphql/commit/c4aac059f4956e8f7d33027c81565317c92c8ca9))
+
+## [2.6.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.1...wp-graphql-acf/v2.6.2) (2026-06-04)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/psr7 from 2.9.0 to 2.10.1 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#3873](https://github.com/wp-graphql/wp-graphql/issues/3873)) ([c4efe56](https://github.com/wp-graphql/wp-graphql/commit/c4efe569622a3a18a6a61198e92b977d0c9cabd3))
+* **deps-dev:** bump symfony/dom-crawler from 5.4.48 to 5.4.52 in /plugins/wp-graphql-acf ([#3855](https://github.com/wp-graphql/wp-graphql/issues/3855)) ([4c0002e](https://github.com/wp-graphql/wp-graphql/commit/4c0002e49c5ed4968ab4d25182c16c23c3b32b23))
+* **deps-dev:** bump symfony/yaml from 5.4.45 to 5.4.53 in /plugins/wp-graphql-acf ([#3862](https://github.com/wp-graphql/wp-graphql/issues/3862)) ([d28f0ca](https://github.com/wp-graphql/wp-graphql/commit/d28f0cacb85a301ee54f11fabfa49740289e40f8))
+
+## [2.6.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.6.0...wp-graphql-acf/v2.6.1) (2026-05-20)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.27 to 2.2.28 in /plugins/wp-graphql-acf ([#3833](https://github.com/wp-graphql/wp-graphql/issues/3833)) ([b3c1e4b](https://github.com/wp-graphql/wp-graphql/commit/b3c1e4bda2afac9e1b78e56599475b35bca3a4d8))
+
+## [2.6.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.5.2...wp-graphql-acf/v2.6.0) (2026-04-23)
+
+
+### New Features
+
+* **telemetry:** mirror Appsero insights to telemetry.wpgraphql.com ([#3785](https://github.com/wp-graphql/wp-graphql/issues/3785)) ([bd0c310](https://github.com/wp-graphql/wp-graphql/commit/bd0c310147b7129a74dc9619d11fdf8d3f0d1975))
+
+
+### Bug Fixes
+
+* **deps-dev:** bump composer/composer from 2.2.26 to 2.2.27 in /plugins/wp-graphql-acf ([#3774](https://github.com/wp-graphql/wp-graphql/issues/3774)) ([5fc6977](https://github.com/wp-graphql/wp-graphql/commit/5fc6977d39d43b6ad6c00821da154056c7e5fb24))
+* sync readme.txt changelogs with releases ([#3744](https://github.com/wp-graphql/wp-graphql/issues/3744)) ([9054847](https://github.com/wp-graphql/wp-graphql/commit/905484787816133c2f4f09b3b6ff01b40bd1cd4f))
+
+## [2.5.2](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.5.1...wp-graphql-acf/v2.5.2) (2026-04-09)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump guzzlehttp/psr7 from 2.8.0 to 2.9.0 in /plugins/wp-graphql-acf in the wp-graphql-acf-composer-dev-minor-patch group ([#3643](https://github.com/wp-graphql/wp-graphql/issues/3643)) ([ee0e265](https://github.com/wp-graphql/wp-graphql/commit/ee0e2653d63f4ab5f67e0e3571d24d4a75d31599))
+* **deps:** bump appsero/client from 1.2.1 to 1.4.0 in /plugins/wp-graphql-acf ([#3726](https://github.com/wp-graphql/wp-graphql/issues/3726)) ([adae788](https://github.com/wp-graphql/wp-graphql/commit/adae788d72c94e58afc9c94bd1909702e394dba8))
+
+## [2.5.1](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.5.0...wp-graphql-acf/v2.5.1) (2026-03-05)
+
+
+### Bug Fixes
+
+* **wp-graphql-acf:** ACF-registered post types/taxonomies not in GraphQL schema (init priority) ([#3609](https://github.com/wp-graphql/wp-graphql/issues/3609)) ([5dad796](https://github.com/wp-graphql/wp-graphql/commit/5dad796bcd6814edc231e0111b9e5d2b5a544e59))
+
+## [2.5.0](https://github.com/wp-graphql/wp-graphql/compare/wp-graphql-acf/v2.4.1...wp-graphql-acf/v2.5.0) (2026-03-04)
+
+
+### New Features
+
+* migrate WPGraphQL for ACF to monorepo ([#3581](https://github.com/wp-graphql/wp-graphql/issues/3581)) ([40967cb](https://github.com/wp-graphql/wp-graphql/commit/40967cb5e68a3e6964828d054a4323b2327b271d))
+
+
+### Bug Fixes
+
+* allow null/empty meta_key in preview_support() for get_post_meta filter ([#3599](https://github.com/wp-graphql/wp-graphql/issues/3599)) ([4c65325](https://github.com/wp-graphql/wp-graphql/commit/4c65325a1764d22935ef4ead25ea6558562c6f17))
+
+## 2.4.1
+
+### Chores / Bugfixes
+
+- chore: update "tested up to" and stable version tags.
+
+## 2.4.0
+
+### New Features
+
+- [#211](https://github.com/wp-graphql/wpgraphql-acf/pull/211): feat: add wp-graphql as required plugin dependency. Thanks @stefanmomm!
+
+### Chores / Bugfixes
+
+- [#224](https://github.com/wp-graphql/wpgraphql-acf/pull/224): chore: update issue templates config.yml to link to Discord instead of Slack
+- [#223](https://github.com/wp-graphql/wpgraphql-acf/pull/223): chore: update branding assets
+- [#214](https://github.com/wp-graphql/wpgraphql-acf/pull/214): chore: bump composer/composer from 2.7.4 to 2.7.7 in the composer group across 1 directory
+- [#231](https://github.com/wp-graphql/wpgraphql-acf/pull/231): fix: block type tests failing
+
+## 2.3.0
+
+## Update Notice
+
+This release refactored some internals regarding how Clone fields and Group fields behave. There was no intentional breaking changes to the Schema, but if you are using Clone and Group fields there is a chance that if you were benefiting from a "bug as a feature" there might be some changes that could impact your Schema and/or resolvers, we recommend testing this update on a staging site to ensure things are still working for you as expected. Should you run into any problems, please [open a new issue](https://github.com/wp-graphql/wpgraphql-acf/issues/new/choose) and provide as much detail as possible to help us reproduce the scenario. Thanks! 🙏
+
+### New Features
+
+- [#193](https://github.com/wp-graphql/wpgraphql-acf/pull/193): feat: improved handling of clone and group fields
+
+### Chores / Bugfixes
+
+- [#194](https://github.com/wp-graphql/wpgraphql-acf/pull/194): ci: test against WordPress 6.5
+
+## 2.2.0
+
+### New Features
+
+- [#181](https://github.com/wp-graphql/wpgraphql-acf/pull/181): feat: update docs Date fields to link to the RFC3339 spec
+
+### Chores / Bugfixes
+
+- [#182](https://github.com/wp-graphql/wpgraphql-acf/pull/182): fix: admin_enqueue_scripts callback should expect a possible null value passed to it
+- [#185](https://github.com/wp-graphql/wpgraphql-acf/pull/185): fix: clone field within a group field type returns null values
+- [#189](https://github.com/wp-graphql/wpgraphql-acf/pull/189): fix: image fields (and other connection fields) not properly resolving when queried asPreview
+
+## 2.1.2
+
+### Chores / Bugfixes
+
+- [#178](https://github.com/wp-graphql/wpgraphql-acf/pull/178): fix: Taxonomy field returns incorrect data if set to store objects instead of IDs
+- [#174](https://github.com/wp-graphql/wpgraphql-acf/pull/174): fix: taxonomy field resolves sorted in the incorrect order
+
+## 2.1.1
+
+### Chores / Bugfixes
+
+- [#167](https://github.com/wp-graphql/wpgraphql-acf/pull/167): fix: pagination on connection fields
+- [#166](https://github.com/wp-graphql/wpgraphql-acf/pull/166): fix: errors when querying fields of the `acfe_date_range_picker` field type
+- [#165](https://github.com/wp-graphql/wpgraphql-acf/pull/165): fix: user field returning all publicly queryable users
+
+## 2.1.0
+
+## Upgrade Notice
+
+While fixing some [performance issues](https://github.com/wp-graphql/wpgraphql-acf/pull/152) we had to adjust the fallback logic for mapping ACF Field Groups to the Schema if they do not have "graphql_types" defined.
+
+ACF Field Groups that did not have "graphql_types" defined AND were assigned to Location Rules based on "post_status", "post_format", "post_category" or "post_taxonomy" _might_ not show in the Schema until their "graphql_types" are explicitly defined.
+
+## New Features
+
+- [#156](https://github.com/wp-graphql/wpgraphql-acf/pull/156): feat: Use published ACF values in resolvers for fields associated with posts that use the block editor, since the Block Editor has a bug preventing meta from being saved for previews. Adds a debug message if ACF fields are queried for with "asPreview" on post(s) that use the block editor.
+
+### Chores / Bugfixes
+
+- [#156](https://github.com/wp-graphql/wpgraphql-acf/pull/156): fix: ACF Fields not resolving when querying "asPreview"
+- [#155](https://github.com/wp-graphql/wpgraphql-acf/pull/155): fix: "show_in_graphql" setting not being respected when turned "off"
+- [#152](https://github.com/wp-graphql/wpgraphql-acf/pull/152): fix: performance issues with mapping ACF Field Groups to the Schema
+- [#148](https://github.com/wp-graphql/wpgraphql-acf/pull/148): fix: bug when querying taxonomy field on blocks
+- [#146](https://github.com/wp-graphql/wpgraphql-acf/pull/146): chore: update phpcs to match core WPGraphQL
+
+## 2.0.0
+
+- [#142](https://github.com/wp-graphql/wpgraphql-acf/pull/142): Update README, versions, plugin assets for deploy to WordPress.org.
+
+## 2.0.0-beta.7.0.0
+
+### BREAKING CHANGES
+
+- [#136](https://github.com/wp-graphql/wpgraphql-acf/pull/136): fix: clone fields not respecting "prefix_name" setting
+
+### Chores / Bugfixes
+
+- [#126](https://github.com/wp-graphql/wpgraphql-acf/pull/126): fix: Make sure oembed field is also formatted when part of a flexible_content field. Thanks @kpoelhekke!
+- [#131](https://github.com/wp-graphql/wpgraphql-acf/pull/131): ci: replace Appsero Updater.php with a blank class to satisfy WordPress.org reqs.
+- [#132](https://github.com/wp-graphql/wpgraphql-acf/pull/132): fix: options page with custom post_id not resolving properly
+- [#16](https://github.com/wp-graphql/wpgraphql-acf/pull/16): ci: Build the plugin zip, deploy to WordPress.org
+
+## 2.0.0-beta.6.0.0
+
+### New Features
+
+- [#114](https://github.com/wp-graphql/wpgraphql-acf/pull/114): feat: add pre filter for resolve type
+
+### Chores / Bugfixes
+
+- [#111](https://github.com/wp-graphql/wpgraphql-acf/pull/111): fix: oembed field type returns embed instead of URL entered to the field
+- [#112](https://github.com/wp-graphql/wpgraphql-acf/pull/112): fix: field groups on page templates not resolving
+- [#116](https://github.com/wp-graphql/wpgraphql-acf/pull/116): fix: error when querying `post_object`, `relationship` or `page_link` field nested on a `repeater` or `flexible_content` field
+- [#122](https://github.com/wp-graphql/wpgraphql-acf/pull/122): ci: update tests to run against WordPress 6.4
+
+## 2.0.0-beta.5.1.0
+
+### Chores / Bugfixes
+
+- [#102](https://github.com/wp-graphql/wpgraphql-acf/pull/102): fix: ACF Field Group Location Rules -> GraphQL Schema mapping bugs
+- [#100](https://github.com/wp-graphql/wpgraphql-acf/pull/100): fix: bug with CPTUI Imports, post type/taxonomy graphql_single_name not being respected
+- [#99](https://github.com/wp-graphql/wpgraphql-acf/pull/99): fix: Repeater, Group, File field not resolving properly when used as a field on ACF Blocks
+
+
+## 2.0.0-beta.5.0.0
+
+[read more](https://github.com/wp-graphql/wpgraphql-acf/releases/tag/v2.0.0-beta.5.0.0)
+
+### New Features
+
+- [#81](https://github.com/wp-graphql/wpgraphql-acf/pull/81): feat: 🚀 ACF Blocks Support. Query ACF Blocks using WPGraphQL!! 🚀 (when [WPGraphQL Content Blocks v1.2.0+](https://github.com/wpengine/wp-graphql-content-blocks/releases/) is active)
+- feat: ACF Options UI support. ACF Pro v6.2 has a new Options Page UI and now you can register those options pages to show in graphql from the UI.
+
+### Chores / Bugfixes
+
+- [#77](https://github.com/wp-graphql/wpgraphql-acf/pull/77): fix: js error when clone fields are added to a field group.
+- [#80](https://github.com/wp-graphql/wpgraphql-acf/pull/81): ci: put the files in a subfolder when build zip in github
+- fix: cloning an individual field applied the entire cloned field's group as an interface to the clonee field group.
+- [#85](https://github.com/wp-graphql/wpgraphql-acf/pull/85): fix: TermNodes returning null when not array and fix type being set to generic TermNode in Taxonomy field
+
+
+## v2.0.0-beta.4.0.0
+
+### Breaking Changes
+
+#### Hook / Filter Name Changes
+
+This release contains breaking changes. Action and Filter names have been renamed to be more consistent across the codebase and to follow a "namespace" pattern similar to core ACF.
+
+If you have custom code that was hooking into / filtering WPGraphQL for ACF, check your hook names.
+
+There's a table documenting the name changes here: [https://github.com/wp-graphql/wpgraphql-acf/pull/67#issue-1818715865](https://github.com/wp-graphql/wpgraphql-acf/pull/67#issue-1818715865)
+
+
+#### LocationRules namespace change
+
+The LocationRules class has changed from `\WPGraphQL\Acf\LocationRules` to `\WPGraphQL\Acf\LocationRules\LocationRules`. It's unlikely that you have custom code referencing this class, but if you do, you'll need to update references.
+
+### New Features
+
+- [#67](https://github.com/wp-graphql/wpgraphql-acf/pull/67): [BREAKING] feat: introduce new hook and filter names to reduce chances of conflicting with custom code extending the previous version of the plugin.
+
+### Chores / Bugfixes
+
+- [#62](https://github.com/wp-graphql/wpgraphql-acf/pull/62): fix: prepare values when return_format is set to "array"
+- [#68](https://github.com/wp-graphql/wpgraphql-acf/pull/68): fix: fieldGroupName was always returning null
+- [#69](https://github.com/wp-graphql/wpgraphql-acf/pull/69): fix: graphql_description default value incorrect
+- [#73](https://github.com/wp-graphql/wpgraphql-acf/pull/73): fix: replace filter_input with sanitize_text_field
+
+## v2.0.0-beta.3.1.0
+
+### Chores / Bugfixes
+
+- [#60](https://github.com/wp-graphql/wpgraphql-acf/pull/60): fix: graphql_field_names were being set incorrectly when adding new fields.
+
+## v2.0.0-beta.3.0.0
+
+### New Features
+
+- [#46](https://github.com/wp-graphql/wpgraphql-acf/pull/46): feat: add "graphql_non_null" setting for fields
+- [#54](https://github.com/wp-graphql/wpgraphql-acf/pull/54): fix: change namespace from WPGraphQLAcf to WPGraphQL\ACF
+
+### Chores / Bugfixes
+
+- [#55](https://github.com/wp-graphql/wpgraphql-acf/pull/55): fix: cline fields not resolving properly
+- [#47](https://github.com/wp-graphql/wpgraphql-acf/pull/47): fix: allow inactive field groups to show in the Schema (but prevent their location rules from being set)
+
+## v2.0.0-beta.2.4.0
+
+### New Features
+
+- [#47](https://github.com/wp-graphql/wpgraphql-acf/pull/47) feat: Expose field groups that are not active, but set to "show_in_graphql" to allow inactive groups to be cloned and used in the schema.
+
+## v2.0.0-beta.2.3.0
+
+### New Features
+
+- [#38](https://github.com/wp-graphql/wpgraphql-acf/pull/38) feat: ACF Options Page support
+
+## 2.0.0-beta.2.2.0
+
+### New Features
+
+- [#38](https://github.com/wp-graphql/wpgraphql-acf/pull/38) feat: ACF Extended / ACF Extended Pro support
+
+## 2.0.0-beta.2.1.0
+
+- [#35](https://github.com/wp-graphql/wpgraphql-acf/pull/35) feat: add Appsero opt-in telemetry.
+- feat: add checks for dependencies (WPGraphQL, ACF, min versions, etc) before loading functionality. Show admin notice and graphql_debug messages if pre-reqs aren't satisfied.
+
+## 2.0.0-beta.2.0.1 to 2.0.0-beta.2.0.5
+
+### Chores / Bugfixes:
+
+- [#33](https://github.com/wp-graphql/wpgraphql-acf/pull/33) fix: failing github workflow for uploading the graphql schema artifact upon releases. No functional changes for users.
+- chore: debugging github workflow for uploading Schema Artifact
+
+## 2.0.0-beta.2
+
+### Chores / Bugfixes:
+
+- [#31](https://github.com/wp-graphql/wpgraphql-acf/pull/31) fix: Prevent fatal error when editing ACF Field Groups
+
+## 2.0.0-beta-1
+
+- Initial public release. "Quiet Beta".
